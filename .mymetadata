@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module
+  type="WEB"
+  name="star-all"
+  id="myeclipse.1448518336149"
+  context-root="/star-all"
+  j2ee-spec="1.7"
+  archive="star-all.war">
+  <attributes>
+    <attribute name="webrootdir" value="src/main/webapp" />
+  </attributes>
+</project-module>
+
