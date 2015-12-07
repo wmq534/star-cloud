@@ -23,7 +23,7 @@
 	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
 		<property name="dataSource" ref="dataSource" />
 		<!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->
-		<property name="typeAliasesPackage" value="com.xiaoju.kefu.optimus.bo" />
+		<property name="typeAliasesPackage" value="com.github.spring.mvc.bo" />
 		<!-- 显式指定Mapper文件位置 -->
 		<property name="mapperLocations" value="classpath:/mybatis/*Mapper.xml" />
 		<property name="plugins">
@@ -41,7 +41,7 @@
 	<!-- 扫描basePackage下所有以@MyBatisRepository标识的 接口 -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
-		<property name="basePackage" value="com.xiaoju.kefu.optimus.dao" />
+		<property name="basePackage" value="com.github.spring.mvc.dao" />
 		<property name="annotationClass"
 			value="com.xiaoju.kefu.optimus.dao.MyBatisRepository" />
 	</bean>
@@ -75,8 +75,6 @@
 			</props>
 		</property>
 	</bean>
-	<bean id="springUtils" class="com.xiaoju.kefu.optimus.utils.SpringUtils"
-		lazy-init="false" />
 
 	<!-- production环境 -->
 	<beans profile="production">
@@ -99,7 +97,7 @@
 			<property name="defaultAutoCommit" value="false" />
 		</bean>
 
-		<bean id="propertiesLoader" class="com.xiaoju.kefu.optimus.utils.PropertiesLoader">
+		<bean id="propertiesLoader" class="com.github.utils.PropertiesLoader">
 			<constructor-arg>
 				<list>
 					<value>application.properties</value>
@@ -114,7 +112,7 @@
 		</bean>
 
 		<bean id="jedisShardInfoList"
-			class="com.xiaoju.kefu.optimus.utils.jedis.JedisShardInfoFactoryBean">
+			class="com.github.utils.jedis.JedisShardInfoFactoryBean">
 			<property name="host" value="${redis.host}" />
 		</bean>
 		<bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
@@ -141,7 +139,7 @@
 			<property name="defaultAutoCommit" value="false" />
 		</bean>
 
-		<bean id="propertiesLoader" class="com.xiaoju.kefu.optimus.utils.PropertiesLoader">
+		<bean id="propertiesLoader" class="com.github.utils.PropertiesLoader">
 			<constructor-arg>
 				<list>
 					<value>application.properties</value>
@@ -157,7 +155,7 @@
 		</bean>
 
 		<bean id="jedisShardInfoList"
-			class="com.xiaoju.kefu.optimus.utils.jedis.JedisShardInfoFactoryBean">
+			class="com.github.utils.jedis.JedisShardInfoFactoryBean">
 			<property name="host" value="${redis.host}" />
 		</bean>
 		<bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
@@ -191,7 +189,7 @@
 				encoding="UTF-8" />
 		</jdbc:initialize-database>
 
-		<bean id="propertiesLoader" class="com.xiaoju.kefu.optimus.utils.PropertiesLoader">
+		<bean id="propertiesLoader" class="com.github.utils.PropertiesLoader">
 			<constructor-arg>
 				<list>
 					<value>application.properties</value>
@@ -207,7 +205,7 @@
 		</bean>
 
 		<bean id="jedisShardInfoList"
-			class="com.xiaoju.kefu.optimus.utils.jedis.JedisShardInfoFactoryBean">
+			class="com.github.utils.jedis.JedisShardInfoFactoryBean">
 			<property name="host" value="10.10.10.101:1234" />
 		</bean>
 		<bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
