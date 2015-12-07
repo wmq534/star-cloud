@@ -3,10 +3,7 @@ package com.github.spring.mvc;
 import org.springframework.stereotype.Service;
 
 @Service
-public class TestService {
-  
-//  @Autowired
-//  private PropertiesLoader loader;
+public class BaseService implements IBaseService{
   
   public String getTest(){
     return "test";

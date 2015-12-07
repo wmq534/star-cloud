@@ -17,34 +17,50 @@
 	<description>Spring公共配置 </description>
 
 	<!-- 使用annotation 自动注册bean, 并保证@Required、@Autowired的属性被注入 -->
-	<context:component-scan base-package="com.github" >
-		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
-	</context:component-scan>
-	
-	<!-- 扫描basePackage下所有以@MyBatisRepository标识的 接口 
+	<context:component-scan base-package="com.github" />
+
+	<!-- MyBatis配置（ark-callcenter库） -->
+	<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<!-- 自动扫描entity目录, 省掉Configuration.xml里的手工配置 -->
+		<property name="typeAliasesPackage" value="com.xiaoju.kefu.optimus.bo" />
+		<!-- 显式指定Mapper文件位置 -->
+		<property name="mapperLocations" value="classpath:/mybatis/*Mapper.xml" />
+		<property name="plugins">
+			<array>
+				<bean class="com.github.pagehelper.PageHelper">
+					<property name="properties">
+						<value>
+							dialect=hsqldb
+						</value>
+					</property>
+				</bean>
+			</array>
+		</property>
+	</bean>
+	<!-- 扫描basePackage下所有以@MyBatisRepository标识的 接口 -->
 	<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
 		<property name="sqlSessionFactoryBeanName" value="sqlSessionFactory" />
 		<property name="basePackage" value="com.xiaoju.kefu.optimus.dao" />
 		<property name="annotationClass"
 			value="com.xiaoju.kefu.optimus.dao.MyBatisRepository" />
 	</bean>
--->
-	<!-- mybatis事务配置 
+
+	<!-- mybatis事务配置 -->
 	<bean id="transactionManager"
 		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
 		<property name="dataSource" ref="dataSource" />
 	</bean>
-	-->
-	<!-- aop事务配置 
+	<!-- aop事务配置 -->
 	<tx:annotation-driven transaction-manager="transactionManager" />
--->
-	<!-- redis连接池的配置 
+
+	<!-- redis连接池的配置 -->
 	<bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
 		<property name="maxTotal" value="10" />
 		<property name="maxIdle" value="10" />
 		<property name="maxWaitMillis" value="3000" />
 	</bean>
--->
+
 	<bean id="freemarkerConfig"
 		class="org.springframework.web.servlet.view.freemarker.FreeMarkerConfigurer">
 		<property name="templateLoaderPath" value="/WEB-INF/views/" />
@@ -59,7 +75,7 @@
 			</props>
 		</property>
 	</bean>
-	<bean id="springUtils" class="com.github.spring.utils.SpringUtils"
+	<bean id="springUtils" class="com.xiaoju.kefu.optimus.utils.SpringUtils"
 		lazy-init="false" />
 
 	<!-- production环境 -->
@@ -67,26 +83,43 @@
 		<context:property-placeholder
 			ignore-unresolvable="true" location="classpath*:/application.properties" />
 
-		<!-- 数据源配置, 使用Tomcat JDBC连接池  -->
+		<!-- 数据源配置, 使用Tomcat JDBC连接池 -->
 		<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource"
 			destroy-method="close">
+			<!-- Connection Info -->
 			<property name="driverClassName" value="${jdbc.driver}" />
 			<property name="url" value="${jdbc.url}" />
 			<property name="username" value="${jdbc.username}" />
 			<property name="password" value="${jdbc.password}" />
 
+			<!-- Connection Pooling Info -->
 			<property name="maxActive" value="${jdbc.pool.maxActive}" />
 			<property name="maxIdle" value="${jdbc.pool.maxIdle}" />
 			<property name="minIdle" value="0" />
 			<property name="defaultAutoCommit" value="false" />
 		</bean>
 
-		<bean id="propertiesLoader" class="com.github.utils.PropertiesLoader">
+		<bean id="propertiesLoader" class="com.xiaoju.kefu.optimus.utils.PropertiesLoader">
 			<constructor-arg>
 				<list>
 					<value>application.properties</value>
+					<value>hag.properties</value>
 				</list>
 			</constructor-arg>
+		</bean>
+
+		<bean id="smsService" class="com.xiaoju.kefu.optimus.sms.SmsService">
+			<constructor-arg index="0" value="${sms.hosts}" />
+			<constructor-arg index="1" value="${sms.retry}" />
+		</bean>
+
+		<bean id="jedisShardInfoList"
+			class="com.xiaoju.kefu.optimus.utils.jedis.JedisShardInfoFactoryBean">
+			<property name="host" value="${redis.host}" />
+		</bean>
+		<bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
+			<constructor-arg index="0" ref="jedisPoolConfig" />
+			<constructor-arg index="1" ref="jedisShardInfoList" />
 		</bean>
 
 	</beans>
@@ -98,7 +131,7 @@
 			location="classpath*:/application.properties,
           			  classpath*:/application.development.properties" />
 
-		<!-- Tomcat JDBC连接池  -->
+		<!-- Tomcat JDBC连接池 -->
 		<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource"
 			destroy-method="close">
 			<property name="driverClassName" value="${jdbc.driver}" />
@@ -108,15 +141,29 @@
 			<property name="defaultAutoCommit" value="false" />
 		</bean>
 
-		<bean id="propertiesLoader" class="com.github.utils.PropertiesLoader">
+		<bean id="propertiesLoader" class="com.xiaoju.kefu.optimus.utils.PropertiesLoader">
 			<constructor-arg>
 				<list>
 					<value>application.properties</value>
 					<value>application.development.properties</value>
+					<value>hag.development.properties</value>
 				</list>
 			</constructor-arg>
 		</bean>
-		
+
+		<bean id="smsService" class="com.xiaoju.kefu.optimus.sms.SmsService">
+			<constructor-arg index="0" value="${sms.hosts}" />
+			<constructor-arg index="1" value="${sms.retry}" />
+		</bean>
+
+		<bean id="jedisShardInfoList"
+			class="com.xiaoju.kefu.optimus.utils.jedis.JedisShardInfoFactoryBean">
+			<property name="host" value="${redis.host}" />
+		</bean>
+		<bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
+			<constructor-arg index="0" ref="jedisPoolConfig" />
+			<constructor-arg index="1" ref="jedisShardInfoList" />
+		</bean>
 	</beans>
 
 	<!-- unit test环境 -->
@@ -126,7 +173,7 @@
 			location="classpath*:/application.properties,
           			  classpath*:/application.test.properties" />
 
-		<!-- Tomcat JDBC连接池  -->
+		<!-- Tomcat JDBC连接池 -->
 		<bean id="dataSource" class="org.apache.tomcat.jdbc.pool.DataSource"
 			destroy-method="close">
 			<property name="driverClassName" value="${jdbc.driver}" />
@@ -136,6 +183,7 @@
 			<property name="defaultAutoCommit" value="false" />
 		</bean>
 
+		<!-- 初始化数据结构与默认数据 -->
 		<jdbc:initialize-database data-source="dataSource"
 			ignore-failures="ALL">
 			<jdbc:script location="classpath:sql/h2/schema.sql" />
@@ -143,13 +191,28 @@
 				encoding="UTF-8" />
 		</jdbc:initialize-database>
 
-		<bean id="propertiesLoader" class="com.github.utils.PropertiesLoader">
+		<bean id="propertiesLoader" class="com.xiaoju.kefu.optimus.utils.PropertiesLoader">
 			<constructor-arg>
 				<list>
 					<value>application.properties</value>
 					<value>application.test.properties</value>
+					<value>hag.development.properties</value>
 				</list>
 			</constructor-arg>
+		</bean>
+
+		<bean id="smsService" class="com.xiaoju.kefu.optimus.sms.SmsService">
+			<constructor-arg index="0" value="${sms.hosts}" />
+			<constructor-arg index="1" value="${sms.retry}" />
+		</bean>
+
+		<bean id="jedisShardInfoList"
+			class="com.xiaoju.kefu.optimus.utils.jedis.JedisShardInfoFactoryBean">
+			<property name="host" value="10.10.10.101:1234" />
+		</bean>
+		<bean id="shardedJedisPool" class="redis.clients.jedis.ShardedJedisPool">
+			<constructor-arg index="0" ref="jedisPoolConfig" />
+			<constructor-arg index="1" ref="jedisShardInfoList" />
 		</bean>
 	</beans>
 </beans>

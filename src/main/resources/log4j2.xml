@@ -8,8 +8,8 @@
             <PatternLayout pattern="%date{HH:mm:ss,SSS} [%thread] [%level] %logger{1.} - %msg%n"/>
         </Console>
         <!-- 按时间切分，也可以加入按大小切分 -->
-        <RollingFile name="RollingFile" fileName="/home/github/webroot/logs/star-all/optimus.log"
-                     filePattern="/home/github/webroot/logs/star-all/star-all.log.%d{yyyyMMdd}">
+        <RollingFile name="RollingFile" fileName="/home/xiaoju/webroot/logs/optimus/optimus.log"
+                     filePattern="/home/xiaoju/webroot/logs/optimus/optimus.log.%d{yyyyMMdd}">
             <PatternLayout pattern="%date{HH:mm:ss,SSS} [%thread] [%level] %logger{1.} - %msg%n"/>
             <Policies>
                 <TimeBasedTriggeringPolicy />
@@ -18,7 +18,7 @@
     </appenders>
     <!--然后定义logger，只有定义了logger并引入的appender，appender才会生效-->
     <loggers>
-        <logger name="com.github" level="INFO" />
+        <logger name="com.xiaoju.kefu.optimus" level="INFO" />
         <logger name="org.springframework" level="INFO" />
         <!-- 
         <logger name="org.mybatis" level="debug" />
